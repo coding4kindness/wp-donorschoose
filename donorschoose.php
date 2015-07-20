@@ -19,7 +19,7 @@ $defaultProposalTemplate = '?><div class="donorschooseHeaderPropsoal">
 <img src="<?php echo $proposal[\'thumbImagURL\']; ?>" />
 </div><?';
 
-function getContent($baseUrl, $apiKey, $filters)
+function curlGetContent($baseUrl, $apiKey, $filters)
 {
 	$apiKeyQs = http_build_query(array('APIKey' => $apiKey));
 	$filtersQs = http_build_query($filters);
@@ -38,7 +38,7 @@ function getContent($baseUrl, $apiKey, $filters)
 }
 
 /*
-function getContent($baseUrl, $apiKey, $filters)
+function cacheGetContent($baseUrl, $apiKey, $filters)
 {
 	global $cacheTtl;
 
@@ -91,7 +91,7 @@ function donorschoose()
 	);
 	$apiKey = getApiKey();
 
-	$content = getContent($donsorsChoosebaseUrl, $apiKey, $filters);
+	$content = curlGetContent($donsorsChoosebaseUrl, $apiKey, $filters);
 
 	/*
 	echo "<xmp>";
