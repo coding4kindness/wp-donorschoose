@@ -81,15 +81,17 @@ function getApiKey()
 }
 
 
-function donorschoose()
+function donorschoose($atts)
 {
 	global $donsorsChoosebaseUrl, $defaultHeadingTemplate, $defaultProposalTemplate;
 
-	$filters = array(
-		"max"=>"10",
-		"state"=>"IN",
-		"community"=>"2021:2"
-	);
+	$filters = shortcode_atts( array(
+		"max" => "10",
+		"state"=>"", // "IN"
+		"community"=>"", // "2021:2"
+		"matchingId"=> "" // "20479550"
+	), $atts);
+
 	$apiKey = getApiKey();
 
 	$content = curlGetContent($donsorsChoosebaseUrl, $apiKey, $filters);
