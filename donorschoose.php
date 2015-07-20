@@ -9,6 +9,7 @@ License:     Apache 2.0
 License URI: http://www.apache.org/licenses/
 */
 $donsorsChoosebaseUrl = "http://api.donorschoose.org/common/json_feed.html"
+$cacheTtl = 60 * 5;
 
 function curlGetContent($baseUrl, $apiKey, $filters)
 {
@@ -26,6 +27,21 @@ function curlGetContent($baseUrl, $apiKey, $filters)
 
 	$json = json_decode($rawData, true);
 	return $json;
+}
+
+function getContent($baseUrl, $apiKey, $filters)
+{
+	$key = $baseUrl . $apiKey . implode("|", $filters);
+	$foundCache = false;
+
+	$content = apc_fetch($key, $foundCache);
+
+	if ( ! $foundCache )
+	{
+		$content = curlGetContent($baseUrl, $apiKey, $filters);
+		apc_store($key, $content ,$cacheTtl);
+	}
+	return $content;
 }
 
 ?>
