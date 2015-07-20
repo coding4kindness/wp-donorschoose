@@ -12,7 +12,7 @@ $donsorsChoosebaseUrl = "http://api.donorschoose.org/common/json_feed.html";
 $defaultApiKey = "DONORSCHOOSE";
 $cacheTtl = 60 * 5;
 $defaultHeadingTemplate = '?><div class="donorschooseHeader"><h2><?php echo count($jsonFeed[\'totalProposals\']); ?> Proposals</h2>
-<a href="<?php echo $jsonFeed[\'searchURL\']; ?>">Open Results</a>
+<a href="<?php echo $jsonFeed[\'searchURL\']; ?>">See more</a>
 </div> <?';
 $defaultProposalTemplate = '?><div class="donorschooseHeaderPropsoal">
 <a href="<?php echo $proposal[\'fundURL\']; ?>">Fund <? echo $proposal[\'title\']; ?></a>
@@ -60,18 +60,33 @@ function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate)
 {
 	$proposals = $jsonFeed['proposals'];
 
-	echo "<div class='donorschooseHeader'>";
+	echo "<div class='donorschoose'>";
+
+	echo "<div class='donorschooseSummary'>";
 		echo "<h2> {$jsonFeed['totalProposals']} Proposals</h2>";
-		echo "<a href='{$jsonFeed['searchURL']}'>Open Results</a>";
+		echo "<a href='{$jsonFeed['searchURL']}'>All Proposals</a>";
 	echo "</div>";
 
 	foreach ($proposals as $proposal)
 	{ 
-		echo "<div class='donorschooseHeaderPropsoal'>";
-			echo "<a href='{$proposal['fundURL']}'>Fund {$proposal['title']}</a>";
-			echo "<img src='{$proposal['thumbImageURL']}' />";
+		echo "<div class='donorschoosePanel'>";
+			echo "<div class='donorschooseDetails'>";
+				echo "<div><img src='{$proposal['imageURL']}' /></div>";
+				echo "<a href='{$proposal['proposalURL']}'>{$proposal['title']}</a>";
+				echo "<p>{$proposal['shortDescription']}</p>";
+				echo "<p>{$proposal['fulfillmentTrailer']}</p>";
+			echo "</div>";
+			echo "<div class='donorschooseCallToAction'>";
+				echo "<h3>\${$proposal['costToComplete']} to go!</h3>";
+				echo "<p>\${$proposal['numDonors']}</p>";
+				echo "<p><a class='donorschooseFundBtn' href='{$proposal['fundURL']}>Fund Proposal</a></p>";
+			echo "</div>";
 		echo "</div>";
 	}
+
+	echo "<a href='{$jsonFeed['searchURL']}'>See more...</a>";
+
+	echo "</div>";
 }
 
 function getApiKey()
@@ -86,7 +101,7 @@ function donorschoose($atts)
 	global $donsorsChoosebaseUrl, $defaultHeadingTemplate, $defaultProposalTemplate;
 
 	$filters = shortcode_atts( array(
-		"max" => "10",
+		"max" => "5",
 		"state"=>"", // "IN"
 		"community"=>"", // "2021:2"
 		"matchingId"=> "" // "20479550"
