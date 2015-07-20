@@ -64,21 +64,22 @@ function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate) {
 
     echo "<div id='donorschooseSummary'>";
       echo "<span id='total_proposals'> {$jsonFeed['totalProposals']} Proposals</span>";
-      echo "<a href='{$jsonFeed['searchURL']}' id='all_proposals '>All Proposals</a>";
+      echo "<a href='{$jsonFeed['searchURL']}' id='all_proposals' target='_blank'>All Proposals</a>";
     echo "</div>";
 
     foreach($proposals as $proposal) {
       echo "<div class='donorschoosePanel'>";
         echo "<div class='donorschooseDetails'>";
-          echo "<div><img src='{$proposal['imageURL']}' /></div>";
-          echo "<a href='{$proposal['proposalURL']}'>{$proposal['title']}</a>";
-          echo "<p>{$proposal['shortDescription']}</p>";
-          echo "<p>{$proposal['fulfillmentTrailer']}</p>";
+          echo "<img src='{$proposal['imageURL']}' class='proposal-image' />";
+          echo "<a href='{$proposal['proposalURL']}' class='proposal-title' >{$proposal['title']}</a>";
+          echo "<span class='proposal-desc'>{$proposal['shortDescription']}</span>";
+          echo "<span class='proposal-fulfillment'>{$proposal['fulfillmentTrailer']}</span>";
         echo "</div>";
+
         echo "<div class='donorschooseCallToAction'>";
           echo "<h3>\${$proposal['costToComplete']} to go!</h3>";
           echo "<p>\${$proposal['numDonors']}</p>";
-          echo "<p><a class='donorschooseFundBtn' href='{$proposal['fundURL']}>Fund Proposal</a></p>";
+          echo "<p><a class='donorschooseFundBtn' href='{$proposal['fundURL']}'>Fund Proposal</a></p>";
         echo "</div>";
       echo "</div>";
     }
@@ -100,7 +101,7 @@ function donorschoose($atts) {
     "max"        => "5",
     "state"      => "", // "IN"
     "community"  => "", // "2021:2"
-    "matchingId" => "" // "20479550"
+    "matchingId" => "0" // "20479550"
   ), $atts);
 
   $apiKey  = getApiKey();
