@@ -1,2 +1,2 @@
 # wp-donorschoose
-Wordpress plugin for donoars choose
+Wordpress plugin for donors choose
