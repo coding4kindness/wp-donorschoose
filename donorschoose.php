@@ -10,6 +10,13 @@ License URI: http://www.apache.org/licenses/
 */
 $donsorsChoosebaseUrl = "http://api.donorschoose.org/common/json_feed.html"
 $cacheTtl = 60 * 5;
+$defaultHeadingTemplate = "?><div class='donorschooseHeader'><h2><?=count($jsonFeed['totalProposals'])?> Proposals</h2>
+<a href='<?=$jsonFeed['searchURL']?>'>Open Results</a>
+</div> <?";
+$defaultProposalTemplate = "?><div class='donorschooseHeaderPropsoal'>
+<a href='<?=$proposal['fundURL']?>'>Fund <?=$proposal['title']?></a>
+<img src='<?=$proposal['thumbImagURL']?>' />
+</div><?";
 
 function curlGetContent($baseUrl, $apiKey, $filters)
 {
@@ -42,6 +49,18 @@ function getContent($baseUrl, $apiKey, $filters)
 		apc_store($key, $content ,$cacheTtl);
 	}
 	return $content;
+}
+
+function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate) 
+{
+	$proposals = $jsonFeed['proposals'];
+
+	eval( $headingTemplate );
+
+	for ($proposals as $proposal)
+	{
+		eval( $proposalsTemplate );
+	}
 }
 
 ?>
