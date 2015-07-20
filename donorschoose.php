@@ -19,22 +19,13 @@ $defaultProposalTemplate = '?><div class="donorschooseHeaderPropsoal">
 <img src="<?php echo $proposal[\'thumbImagURL\']; ?>" />
 </div><?';
 
-function curlGetContent($baseUrl, $apiKey, $filters)
-{
+function GetContent($baseUrl, $apiKey, $filters)
+{	
 	$apiKeyQs = http_build_query(array('APIKey' => $apiKey));
 	$filtersQs = http_build_query($filters);
 
 	$url = $baseUrl . "?" . $apiKeyQs . "&" . $filtersQs;
 
-	/*
-	$curl = curl_init();
-	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_HEADER, false);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($curl, CURLOPT_GETT, true);
-	$rawData = curl_exec($curl);
-	curl_exec($curl);
-	*/
 	$rawData = file_get_contents($url);
 
 	$json = json_decode($rawData, true);
@@ -53,7 +44,7 @@ function cacheGetContent($baseUrl, $apiKey, $filters)
 
 	if ( ! $foundCache )
 	{
-		$content = curlGetContent($baseUrl, $apiKey, $filters);
+		$content = GetContent($baseUrl, $apiKey, $filters);
 		apc_store($key, $content ,$cacheTtl);
 	}
 	return $content;
@@ -64,33 +55,35 @@ function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate)
 {
 	$proposals = $jsonFeed['proposals'];
 
-	echo "<div class='donorschoose'>";
+	$outputString = "<div class='donorschoose'>";
 
-	echo "<div class='donorschooseSummary'>";
-		echo "<h2> {$jsonFeed['totalProposals']} Proposals</h2>";
-		echo "<a href='{$jsonFeed['searchURL']}'>All Proposals</a>";
-	echo "</div>";
+	$outputString .= "<div class='donorschooseSummary'>";
+		$outputString .= "<h2> {$jsonFeed['totalProposals']} Proposals</h2>";
+		$outputString .= "<a href='{$jsonFeed['searchURL']}'>All Proposals</a>";
+	$outputString .= "</div>";
 
 	foreach ($proposals as $proposal)
 	{ 
-		echo "<div class='donorschoosePanel'>";
-			echo "<div class='donorschooseDetails'>";
-				echo "<div><img src='{$proposal['imageURL']}' /></div>";
-				echo "<a href='{$proposal['proposalURL']}'>{$proposal['title']}</a>";
-				echo "<p>{$proposal['shortDescription']}</p>";
-				echo "<p>{$proposal['fulfillmentTrailer']}</p>";
-			echo "</div>";
-			echo "<div class='donorschooseCallToAction'>";
-				echo "<h3>\${$proposal['costToComplete']} to go!</h3>";
-				echo "<p>\${$proposal['numDonors']}</p>";
-				echo "<p><a class='donorschooseFundBtn' href='{$proposal['fundURL']}>Fund Proposal</a></p>";
-			echo "</div>";
-		echo "</div>";
+		$outputString .= "<div class='donorschoosePanel'>";
+			$outputString .= "<div class='donorschooseDetails'>";
+				$outputString .= "<div><img src='{$proposal['imageURL']}' /></div>";
+				$outputString .= "<a href='{$proposal['proposalURL']}'>{$proposal['title']}</a>";
+				$outputString .= "<p>{$proposal['shortDescription']}</p>";
+				$outputString .= "<p>{$proposal['fulfillmentTrailer']}</p>";
+			$outputString .= "</div>";
+			$outputString .= "<div class='donorschooseCallToAction'>";
+				$outputString .= "<h3>\${$proposal['costToComplete']} to go!</h3>";
+				$outputString .= "<p>\${$proposal['numDonors']}</p>";
+				$outputString .= "<p><a class='donorschooseFundBtn' href='{$proposal['fundURL']}>Fund Proposal</a></p>";
+			$outputString .= "</div>";
+		$outputString .= "</div>";
 	}
 
-	echo "<a href='{$jsonFeed['searchURL']}'>See more...</a>";
+	$outputString .= "<a href='{$jsonFeed['searchURL']}'>See more...</a>";
 
-	echo "</div>";
+	$outputString .= "</div>";
+	
+	return $outputString;
 }
 
 function getApiKey()
@@ -106,16 +99,16 @@ function donorschoose($atts)
 
 	$filters = shortcode_atts( array(
 		"max" => "5",
-		"state"=>"", // "IN"
-		"community"=>"", // "2021:2"
-		"matchingId"=> "" // "20479550"
+		"state"=>"", // ex: "IN"
+		"community"=>"", // ex: "2021:2"
+		"matchingId"=> "" // ex: "20479550"
 	), $atts);
 
 	$apiKey = getApiKey();
 
-	$content = curlGetContent($donsorsChoosebaseUrl, $apiKey, $filters);
+	$content = GetContent($donsorsChoosebaseUrl, $apiKey, $filters);
 
-	outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
+	echo outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
 }
 
 
