@@ -8,18 +8,18 @@ Author:      Andrew Roden, Freeman Parks
 License:     Apache 2.0
 License URI: http://www.apache.org/licenses/
 */
-$donsorsChoosebaseUrl = "http://api.donorschoose.org/common/json_feed.html"
+$donsorsChoosebaseUrl = "http://api.donorschoose.org/common/json_feed.html";
 $defaultApiKey = "DONORSCHOOSE";
 $cacheTtl = 60 * 5;
-$defaultHeadingTemplate = "?><div class='donorschooseHeader'><h2><?=count($jsonFeed['totalProposals'])?> Proposals</h2>
-<a href='<?=$jsonFeed['searchURL']?>'>Open Results</a>
-</div> <?";
-$defaultProposalTemplate = "?><div class='donorschooseHeaderPropsoal'>
-<a href='<?=$proposal['fundURL']?>'>Fund <?=$proposal['title']?></a>
-<img src='<?=$proposal['thumbImagURL']?>' />
-</div><?";
+$defaultHeadingTemplate = '?><div class="donorschooseHeader"><h2><?php echo count($jsonFeed[\'totalProposals\']); ?> Proposals</h2>
+<a href="<?php echo $jsonFeed[\'searchURL\']; ?>">Open Results</a>
+</div> <?';
+$defaultProposalTemplate = '?><div class="donorschooseHeaderPropsoal">
+<a href="<?php echo $proposal[\'fundURL\']; ?>">Fund <? echo $proposal[\'title\']; ?></a>
+<img src="<?php echo $proposal[\'thumbImagURL\']; ?>" />
+</div><?';
 
-function curlGetContent($baseUrl, $apiKey, $filters)
+function getContent($baseUrl, $apiKey, $filters)
 {
 	$apiKeyQs = http_build_query(array('APIKey' => $apiKey));
 	$filtersQs = http_build_query($filters);
@@ -37,8 +37,11 @@ function curlGetContent($baseUrl, $apiKey, $filters)
 	return $json;
 }
 
+/*
 function getContent($baseUrl, $apiKey, $filters)
 {
+	global $cacheTtl;
+
 	$key = $baseUrl . $apiKey . implode("|", $filters);
 	$foundCache = false;
 
@@ -51,35 +54,50 @@ function getContent($baseUrl, $apiKey, $filters)
 	}
 	return $content;
 }
+*/
 
 function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate) 
 {
 	$proposals = $jsonFeed['proposals'];
 
-	eval( $headingTemplate );
+	echo "<div class='donorschooseHeader'>";
+		echo "<h2> {$jsonFeed['totalProposals']} Proposals</h2>";
+		echo "<a href='{$jsonFeed['searchURL']}'>Open Results</a>";
+	echo "</div>";
 
-	for ($proposals as $proposal)
-	{
-		eval( $proposalsTemplate );
+	foreach ($proposals as $proposal)
+	{ 
+		echo "<div class='donorschooseHeaderPropsoal'>";
+			echo "<a href='{$proposal['fundURL']}'>Fund {$proposal['title']}</a>";
+		echo "</div>";
 	}
 }
 
 function getApiKey()
 {
+	global $defaultApiKey;
 	return $defaultApiKey;
 }
 
 
 function donorschoose()
 {
+	global $donsorsChoosebaseUrl, $defaultHeadingTemplate, $defaultProposalTemplate;
+
 	$filters = array(
 		"max"=>"10",
 		"state"=>"IN",
 		"community"=>"2021:2"
 	);
-
 	$apiKey = getApiKey();
-	$content = getContent($baseUrl, $apiKey, $filters);
+
+	$content = getContent($donsorsChoosebaseUrl, $apiKey, $filters);
+
+	/*
+	echo "<xmp>";
+	var_dump($content);
+	echo "</xmp>";
+	*/
 	outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
 }
 
@@ -90,7 +108,7 @@ if ( function_exists('add_action') )
 
 if ( function_exists('add_shortcode') )
 {
-	add_action('donorschoose', 'add_shortcode');
+	add_action('donorschoose', 'donorschoose');
 }
 
 ?>
