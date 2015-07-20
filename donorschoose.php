@@ -60,11 +60,11 @@ function cacheGetContent($baseUrl, $apiKey, $filters) {
 function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate) {
   $proposals = $jsonFeed['proposals'];
 
-  echo "<div class='donorschoose'>";
+  echo "<div id='donorschoose'>";
 
-    echo "<div class='donorschooseSummary'>";
-      echo "<h2> {$jsonFeed['totalProposals']} Proposals</h2>";
-      echo "<a href='{$jsonFeed['searchURL']}'>All Proposals</a>";
+    echo "<div id='donorschooseSummary'>";
+      echo "<span id='total_proposals'> {$jsonFeed['totalProposals']} Proposals</span>";
+      echo "<a href='{$jsonFeed['searchURL']}' id='all_proposals '>All Proposals</a>";
     echo "</div>";
 
     foreach($proposals as $proposal) {
