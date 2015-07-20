@@ -4,13 +4,14 @@ Plugin Name: Donors Choose
 Plugin URI:  https://github.com/coding4kindness/wp-donorschoose
 Description: Plugin for donors choose campaigns
 Version:     0.1
-Author:      Andrew Roden, Freeman Parks
+Author:      Andrew Roden, Freeman Parks, Josh Miller
 License:     Apache 2.0
 License URI: http://www.apache.org/licenses/
 */
-$donsorsChoosebaseUrl = "http://api.donorschoose.org/common/json_feed.html";
-$defaultApiKey = "DONORSCHOOSE";
-$cacheTtl = 60 * 5;
+
+$donsorsChoosebaseUrl   = "http://api.donorschoose.org/common/json_feed.html";
+$defaultApiKey          = "DONORSCHOOSE";
+$cacheTtl               = 60 * 5;
 $defaultHeadingTemplate = '?><div class="donorschooseHeader"><h2><?php echo count($jsonFeed[\'totalProposals\']); ?> Proposals</h2>
 <a href="<?php echo $jsonFeed[\'searchURL\']; ?>">See more</a>
 </div> <?';
@@ -19,107 +20,93 @@ $defaultProposalTemplate = '?><div class="donorschooseHeaderPropsoal">
 <img src="<?php echo $proposal[\'thumbImagURL\']; ?>" />
 </div><?';
 
-function curlGetContent($baseUrl, $apiKey, $filters)
-{
-	$apiKeyQs = http_build_query(array('APIKey' => $apiKey));
-	$filtersQs = http_build_query($filters);
+function curlGetContent($baseUrl, $apiKey, $filters) {
+  $apiKeyQs  = http_build_query(array('APIKey' => $apiKey));
+  $filtersQs = http_build_query($filters);
+  $url       = "$baseUrl?$apiKeyQs&$filtersQs";
 
-	$url = $baseUrl . "?" . $apiKeyQs . "&" . $filtersQs;
+  if (function_exists("curl_version")) {
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_HEADER, false);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_GETT, true);
+    $rawData = curl_exec($curl);
+  } else {
+    $rawData = file_get_contents($url);
+  }
 
-	/*
-	$curl = curl_init();
-	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_HEADER, false);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($curl, CURLOPT_GETT, true);
-	$rawData = curl_exec($curl);
-	curl_exec($curl);
-	*/
-	$rawData = file_get_contents($url);
-
-	$json = json_decode($rawData, true);
-	return $json;
+  $json = json_decode($rawData, true);
+  return $json;
 }
 
 /*
-function cacheGetContent($baseUrl, $apiKey, $filters)
-{
-	global $cacheTtl;
+function cacheGetContent($baseUrl, $apiKey, $filters) {
+  global $cacheTtl;
 
-	$key = $baseUrl . $apiKey . implode("|", $filters);
-	$foundCache = false;
+  $key        = $baseUrl . $apiKey . implode("|", $filters);
+  $foundCache = false;
+  $content    = apc_fetch($key, $foundCache);
 
-	$content = apc_fetch($key, $foundCache);
+  if ( ! $foundCache ) {
+    $content = curlGetContent($baseUrl, $apiKey, $filters);
+    apc_store($key, $content ,$cacheTtl);
+  }
 
-	if ( ! $foundCache )
-	{
-		$content = curlGetContent($baseUrl, $apiKey, $filters);
-		apc_store($key, $content ,$cacheTtl);
-	}
-	return $content;
+  return $content;
 }
 */
 
-function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate) 
-{
-	$proposals = $jsonFeed['proposals'];
+function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate) {
+  $proposals = $jsonFeed['proposals'];
 
-	echo "<div class='donorschoose'>";
+  echo "<div class='donorschoose'>";
 
-	echo "<div class='donorschooseSummary'>";
-		echo "<h2> {$jsonFeed['totalProposals']} Proposals</h2>";
-		echo "<a href='{$jsonFeed['searchURL']}'>All Proposals</a>";
-	echo "</div>";
+    echo "<div class='donorschooseSummary'>";
+      echo "<h2> {$jsonFeed['totalProposals']} Proposals</h2>";
+      echo "<a href='{$jsonFeed['searchURL']}'>All Proposals</a>";
+    echo "</div>";
 
-	foreach ($proposals as $proposal)
-	{ 
-		echo "<div class='donorschoosePanel'>";
-			echo "<div class='donorschooseDetails'>";
-				echo "<div><img src='{$proposal['imageURL']}' /></div>";
-				echo "<a href='{$proposal['proposalURL']}'>{$proposal['title']}</a>";
-				echo "<p>{$proposal['shortDescription']}</p>";
-				echo "<p>{$proposal['fulfillmentTrailer']}</p>";
-			echo "</div>";
-			echo "<div class='donorschooseCallToAction'>";
-				echo "<h3>\${$proposal['costToComplete']} to go!</h3>";
-				echo "<p>\${$proposal['numDonors']}</p>";
-				echo "<p><a class='donorschooseFundBtn' href='{$proposal['fundURL']}>Fund Proposal</a></p>";
-			echo "</div>";
-		echo "</div>";
-	}
+    foreach($proposals as $proposal) {
+      echo "<div class='donorschoosePanel'>";
+        echo "<div class='donorschooseDetails'>";
+          echo "<div><img src='{$proposal['imageURL']}' /></div>";
+          echo "<a href='{$proposal['proposalURL']}'>{$proposal['title']}</a>";
+          echo "<p>{$proposal['shortDescription']}</p>";
+          echo "<p>{$proposal['fulfillmentTrailer']}</p>";
+        echo "</div>";
+        echo "<div class='donorschooseCallToAction'>";
+          echo "<h3>\${$proposal['costToComplete']} to go!</h3>";
+          echo "<p>\${$proposal['numDonors']}</p>";
+          echo "<p><a class='donorschooseFundBtn' href='{$proposal['fundURL']}>Fund Proposal</a></p>";
+        echo "</div>";
+      echo "</div>";
+    }
 
-	echo "<a href='{$jsonFeed['searchURL']}'>See more...</a>";
+    echo "<a href='{$jsonFeed['searchURL']}'>See more...</a>";
 
-	echo "</div>";
+  echo "</div>";
 }
 
-function getApiKey()
-{
-	global $defaultApiKey;
-	return $defaultApiKey;
+function getApiKey() {
+  global $defaultApiKey;
+  return $defaultApiKey;
 }
 
+function donorschoose($atts) {
+  global $donsorsChoosebaseUrl, $defaultHeadingTemplate, $defaultProposalTemplate;
 
-function donorschoose($atts)
-{
-	global $donsorsChoosebaseUrl, $defaultHeadingTemplate, $defaultProposalTemplate;
+  $filters = shortcode_atts(array(
+    "max"        => "5",
+    "state"      => "", // "IN"
+    "community"  => "", // "2021:2"
+    "matchingId" => "" // "20479550"
+  ), $atts);
 
-	$filters = shortcode_atts( array(
-		"max" => "5",
-		"state"=>"", // "IN"
-		"community"=>"", // "2021:2"
-		"matchingId"=> "" // "20479550"
-	), $atts);
+  $apiKey  = getApiKey();
+  $content = curlGetContent($donsorsChoosebaseUrl, $apiKey, $filters);
 
-	$apiKey = getApiKey();
-
-	$content = curlGetContent($donsorsChoosebaseUrl, $apiKey, $filters);
-
-	outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
+  outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
 }
-
 
 add_shortcode('donorschoose', 'donorschoose');
-
-?>
-
