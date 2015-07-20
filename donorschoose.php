@@ -9,6 +9,7 @@ License:     Apache 2.0
 License URI: http://www.apache.org/licenses/
 */
 $donsorsChoosebaseUrl = "http://api.donorschoose.org/common/json_feed.html"
+$defaultApiKey = "DONORSCHOOSE";
 $cacheTtl = 60 * 5;
 $defaultHeadingTemplate = "?><div class='donorschooseHeader'><h2><?=count($jsonFeed['totalProposals'])?> Proposals</h2>
 <a href='<?=$jsonFeed['searchURL']?>'>Open Results</a>
@@ -61,6 +62,24 @@ function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate)
 	{
 		eval( $proposalsTemplate );
 	}
+}
+
+function getApiKey()
+{
+	return $defaultApiKey;
+}
+
+
+function donorschoose($filters)
+{
+	$apiKey = getApiKey();
+	$content = getContent($baseUrl, $apiKey, $filters);
+	outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
+}
+
+if ( function_exists('add_action') )
+{
+	add_action('init', 'donorschoose');
 }
 
 ?>
