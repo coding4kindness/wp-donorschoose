@@ -69,6 +69,7 @@ function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate)
 	{ 
 		echo "<div class='donorschooseHeaderPropsoal'>";
 			echo "<a href='{$proposal['fundURL']}'>Fund {$proposal['title']}</a>";
+			echo "<img src='{$proposal['thumbImageURL']}' />";
 		echo "</div>";
 	}
 }
@@ -93,23 +94,11 @@ function donorschoose()
 
 	$content = curlGetContent($donsorsChoosebaseUrl, $apiKey, $filters);
 
-	/*
-	echo "<xmp>";
-	var_dump($content);
-	echo "</xmp>";
-	*/
 	outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
 }
 
-if ( function_exists('add_action') )
-{
-	add_action('init', 'donorschoose');
-}
 
-if ( function_exists('add_shortcode') )
-{
-	add_action('donorschoose', 'donorschoose');
-}
+add_shortcode('donorschoose', 'donorschoose');
 
 ?>
 
