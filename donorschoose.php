@@ -70,8 +70,14 @@ function getApiKey()
 }
 
 
-function donorschoose($filters)
+function donorschoose()
 {
+	$filters = array(
+		"max"=>"10",
+		"state"=>"IN",
+		"community"=>"2021:2"
+	);
+
 	$apiKey = getApiKey();
 	$content = getContent($baseUrl, $apiKey, $filters);
 	outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
@@ -80,6 +86,11 @@ function donorschoose($filters)
 if ( function_exists('add_action') )
 {
 	add_action('init', 'donorschoose');
+}
+
+if ( function_exists('add_shortcode') )
+{
+	add_action('donorschoose', 'add_shortcode');
 }
 
 ?>
