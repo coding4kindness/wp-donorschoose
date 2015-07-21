@@ -60,33 +60,37 @@ function cacheGetContent($baseUrl, $apiKey, $filters) {
 function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate) {
   $proposals = $jsonFeed['proposals'];
 
-  echo "<div id='donorschoose'>";
+  $outputString = "<div id='donorschoose'>";
 
-    echo "<div id='donorschooseSummary'>";
-      echo "<span id='total_proposals'> {$jsonFeed['totalProposals']} Proposals</span>";
-      echo "<a href='{$jsonFeed['searchURL']}' id='all_proposals' target='_blank'>All Proposals</a>";
-    echo "</div>";
+    $outputString .= "<div id='donorschooseSummary'>";
+      $outputString .= "<span id='total_proposals'> {$jsonFeed['totalProposals']} Proposals</span>";
+      $outputString .= "<a href='{$jsonFeed['searchURL']}' id='all_proposals' target='_blank'>All Proposals</a>";
+    $outputString .= "</div>";
 
     foreach($proposals as $proposal) {
-      echo "<div class='donorschoosePanel'>";
-        echo "<div class='donorschooseDetails'>";
-          echo "<img src='{$proposal['imageURL']}' class='proposal-image' />";
-          echo "<a href='{$proposal['proposalURL']}' class='proposal-title' >{$proposal['title']}</a>";
-          echo "<span class='proposal-desc'>{$proposal['shortDescription']}</span>";
-          echo "<span class='proposal-fulfillment'>{$proposal['fulfillmentTrailer']}</span>";
-        echo "</div>";
+      $outputString .= "<div class='donorschoosePanel'>";
+        $outputString .= "<div class='donorschooseDetails'>";
+          $outputString .= "<img src='{$proposal['imageURL']}' class='proposal-image' />";
+          $outputString .= "<a href='{$proposal['proposalURL']}' class='proposal-title' >{$proposal['title']}</a>";
+          $outputString .= "<div class='proposal-desc'>{$proposal['shortDescription']}</div>";
+          $outputString .= "<div class='proposal-fulfillment'>{$proposal['fulfillmentTrailer']}</div>";
+        $outputString .= "</div>";
 
-        echo "<div class='donorschooseCallToAction'>";
-          echo "<h3>\${$proposal['costToComplete']} to go!</h3>";
-          echo "<p>\${$proposal['numDonors']}</p>";
-          echo "<p><a class='donorschooseFundBtn' href='{$proposal['fundURL']}'>Fund Proposal</a></p>";
-        echo "</div>";
-      echo "</div>";
+        $outputString .= "<div class='donorschooseCallToAction'>";
+          $outputString .= "<div class='amount-left'>\${$proposal['costToComplete']} to go!</div>";
+          $outputString .= "<div class='donor-count'>{$proposal['numDonors']} donors</div>";
+          $outputString .= "<a class='donorschooseFundBtn' href='{$proposal['fundURL']}' target='_blank'>Fund Proposal</a>";
+        $outputString .= "</div>";
+
+        $outputString .= "<div class='clearer'></div>";
+      $outputString .= "</div>";
     }
 
-    echo "<a href='{$jsonFeed['searchURL']}'>See more...</a>";
+    $outputString .= "<a href='{$jsonFeed['searchURL']}' target='_blank'>See more...</a>";
 
-  echo "</div>";
+  $outputString .= "</div>";
+
+  return $outputString;
 }
 
 function getApiKey() {
@@ -107,7 +111,7 @@ function donorschoose($atts) {
   $apiKey  = getApiKey();
   $content = curlGetContent($donsorsChoosebaseUrl, $apiKey, $filters);
 
-  outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
+  echo outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
 }
 
 add_shortcode('donorschoose', 'donorschoose');
