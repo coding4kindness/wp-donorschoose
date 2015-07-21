@@ -11,14 +11,6 @@ License URI: http://www.apache.org/licenses/
 
 $donsorsChoosebaseUrl   = "http://api.donorschoose.org/common/json_feed.html";
 $defaultApiKey          = "DONORSCHOOSE";
-$cacheTtl               = 60 * 5;
-$defaultHeadingTemplate = '?><div class="donorschooseHeader"><h2><?php echo count($jsonFeed[\'totalProposals\']); ?> Proposals</h2>
-<a href="<?php echo $jsonFeed[\'searchURL\']; ?>">See more</a>
-</div> <?';
-$defaultProposalTemplate = '?><div class="donorschooseHeaderPropsoal">
-<a href="<?php echo $proposal[\'fundURL\']; ?>">Fund <? echo $proposal[\'title\']; ?></a>
-<img src="<?php echo $proposal[\'thumbImagURL\']; ?>" />
-</div><?';
 
 function curlGetContent($baseUrl, $apiKey, $filters) {
   $apiKeyQs  = http_build_query(array('APIKey' => $apiKey));
@@ -40,24 +32,7 @@ function curlGetContent($baseUrl, $apiKey, $filters) {
   return $json;
 }
 
-/*
-function cacheGetContent($baseUrl, $apiKey, $filters) {
-  global $cacheTtl;
-
-  $key        = $baseUrl . $apiKey . implode("|", $filters);
-  $foundCache = false;
-  $content    = apc_fetch($key, $foundCache);
-
-  if ( ! $foundCache ) {
-    $content = curlGetContent($baseUrl, $apiKey, $filters);
-    apc_store($key, $content ,$cacheTtl);
-  }
-
-  return $content;
-}
-*/
-
-function outputTemplates($jsonFeed, $headingTemplate, $proposalsTemplate) {
+function outputTemplates($jsonFeed) {
   $proposals = $jsonFeed['proposals'];
 
   $outputString = "<div id='donorschoose'>";
@@ -99,7 +74,7 @@ function getApiKey() {
 }
 
 function donorschoose($atts) {
-  global $donsorsChoosebaseUrl, $defaultHeadingTemplate, $defaultProposalTemplate;
+  global $donsorsChoosebaseUrl;
 
   $filters = shortcode_atts(array(
     "max"        => "5",
@@ -111,7 +86,7 @@ function donorschoose($atts) {
   $apiKey  = getApiKey();
   $content = curlGetContent($donsorsChoosebaseUrl, $apiKey, $filters);
 
-  return outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
+  return outputTemplates($content);
 }
 
 add_shortcode('donorschoose', 'donorschoose');
