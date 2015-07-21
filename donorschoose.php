@@ -111,7 +111,7 @@ function donorschoose($atts) {
   $apiKey  = getApiKey();
   $content = curlGetContent($donsorsChoosebaseUrl, $apiKey, $filters);
 
-  echo outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
+  return outputTemplates($content, $defaultHeadingTemplate, $defaultProposalTemplate);
 }
 
 add_shortcode('donorschoose', 'donorschoose');
